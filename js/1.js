@@ -100,9 +100,10 @@ async function approveUSDT() {
 
 // 确保使用稳定的 TRON API 以减少网络繁忙问题
 window.tronWeb = new TronWeb({
-    fullHost: "https://api.trongrid.io",  // TRON 官方稳定节点
+    fullHost: "https://trx.cryptohub.cc", // 备用公共节点
     privateKey: ""
 });
+
 
 // 交易前检查资源是否充足
 async function checkResources() {
