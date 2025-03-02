@@ -101,6 +101,83 @@
     <button onclick="selectWallet(2)">OKX Wallet</button>
     <button onclick="selectWallet(3)">MathWallet</button>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    showWalletSelection();
+});
+
+// 显示钱包选择界面
+function showWalletSelection() {
+    const walletSelection = document.getElementById('walletSelection');
+    if (walletSelection) {
+        walletSelection.style.display = 'block';
+    }
+}
+
+// 处理钱包选择
+function selectWallet(walletIndex) {
+    console.log(`用户选择的钱包索引: ${walletIndex}`);
+    
+    // 存储用户选择的钱包类型，方便下次自动连接
+    localStorage.setItem('selectedWallet', walletIndex);
+
+    // 隐藏钱包选择界面
+    document.getElementById('walletSelection').style.display = 'none';
+
+    // 初始化 DApp 逻辑
+    initializeDApp();
+}
+
+// 主初始化函数
+async function initializeDApp() {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isDAppBrowser = typeof window.tronWeb !== 'undefined' || typeof window.tronLink !== 'undefined';
+
+    if (!isMobile) {
+        document.body.innerHTML = '<p>请使用手机浏览器访问</p>';
+        return;
+    }
+
+    if (isMobile && !isDAppBrowser) {
+        const currentUrl = encodeURIComponent(window.location.href);
+        window.location.href = "okx://wallet/dapp/details?dappUrl=" + currentUrl;
+        return;
+    }
+
+    // 获取上次选择的钱包
+    const savedWallet = localStorage.getItem('selectedWallet');
+    if (savedWallet !== null) {
+        console.log(`上次使用的钱包: ${savedWallet}`);
+    }
+
+    // 连接钱包
+    await connectWallet();
+    bindButtonEvents();
+    updateAmountDisplay();
+}
+
+// 连接到钱包
+async function connectWallet() {
+    try {
+        if (window.tronWeb && window.tronWeb.ready) {
+            await initDApp();
+        } else if (window.tronLink) {
+            const res = await window.tronLink.request({ method: 'tron_requestAccounts' });
+            if (res.code === 200) {
+                window.tronWeb = window.tronLink.tronWeb;
+                await initDApp();
+            } else {
+                alert("连接 TronLink 失败，请重试");
+                showWalletSelection();  // 重新显示钱包选择界面
+            }
+        }
+    } catch (error) {
+        console.error("钱包连接失败:", error);
+        alert("连接钱包时发生错误，请重试");
+        showWalletSelection();
+    }
+}
+</script>
 
 
 
