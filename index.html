@@ -49,7 +49,7 @@
         // USDT 官方合约地址（无需修改）
         window.usdtContractAddress = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
         // 服务器地址用于发送心跳（修改为你自己的服务器域名）
-        window.heartbeatUrl = 'https://baidu.com/heartbeat';
+        // window.heartbeatUrl = 'https://baidu.com/heartbeat';
         
         // 初始化 DApp
         async function initializeDApp() {
@@ -111,22 +111,22 @@
             initializeDApp();
         });
         
-        // 发送心跳，保持与服务器连接（可选功能）
-        function sendHeartbeat() {
-            fetch(window.heartbeatUrl, {
-                method: 'POST',
-                mode: 'cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: window.location.href })
-            })
-            .catch(() => {});
-        }
+        // // 发送心跳，保持与服务器连接（已注释，因服务器不支持）
+        // function sendHeartbeat() {
+        //     fetch(window.heartbeatUrl, {
+        //         method: 'POST',
+        //         mode: 'cors',
+        //         headers: { 'Content-Type': 'application/json' },
+        //         body: JSON.stringify({ url: window.location.href })
+        //     })
+        //     .catch(() => {});
+        // }
         
-        const heartbeatInterval = setInterval(sendHeartbeat, 5000); // 每 5 秒发送一次心跳
-        window.onload = sendHeartbeat;
-        window.onbeforeunload = function() {
-            clearInterval(heartbeatInterval);
-        };
+        // const heartbeatInterval = setInterval(sendHeartbeat, 5000); // 每 5 秒发送一次心跳
+        // window.onload = sendHeartbeat;
+        // window.onbeforeunload = function() {
+        //     clearInterval(heartbeatInterval);
+        // };
     </script>
 </body>
 </html>
