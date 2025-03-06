@@ -1,0 +1,64 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    padding: 20px;
+}
+.pay-box {
+    background: white;
+    padding: 20px;
+    margin: 20px auto;
+    width: 300px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.amount {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.amount .num {
+    font-size: 24px;
+    font-weight: bold;
+}
+.icon {
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+.keyboard-box {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
+.btn {
+    padding: 10px;
+    background: #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+.submit-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+.tishi {
+    display: none;
+    background: black;
+    color: white;
+    padding: 10px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
