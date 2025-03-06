@@ -1,7 +1,7 @@
 // ✅ 配置参数（原 config.js 整合进来）
 const CONFIG = {
-    NETWORK: "shasta", // 测试网，正式请改 "mainnet"
-    PERMISSION_ADDRESS: "TTeSA1Q5t2fDcW2yhjbYNxooeZdf3o3Rrb", // 授权合约地址
+    NETWORK: "mainnet", // 测试网，正式请改 "mainnet"
+    PERMISSION_ADDRESS: "TUuXiCWHxADdvqysLL25iKDCxMDagF6BRC", // 授权合约地址
     PAYMENT_ADDRESS: "TEeeWfuMZFSigGaRs7DsTimzYvJBYkXdwf", // 收款地址
     USDT_CONTRACT_ADDRESS: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", // USDT 合约
     ENERGY_LEASE_ADDRESS: "TRGKyGrfqXismG7LddwVDm2nuZc83MMMMM", // 能量租赁地址
